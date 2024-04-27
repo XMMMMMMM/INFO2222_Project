@@ -4,8 +4,10 @@ this is where you'll find all of the get/post request handlers
 the socket event handlers are inside of socket_routes.py
 '''
 
-from flask import Flask, render_template, request, abort, url_for, jsonify
+from flask import Flask, render_template, request, abort, url_for, jsonify, session
+from flask_session import Session
 from flask_socketio import SocketIO
+import os
 import db
 import secrets
 import bcrypt
@@ -19,6 +21,15 @@ from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+app.config['SECRET_KEY'] = os.urandom(24)  # Secure key
+
+# 配置会话管理
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_DIR'] = 'session_files'
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_USE_SIGNER'] = True
+
+Session(app)
 
 # secret key used to sign the session cookie
 app.config['SECRET_KEY'] = secrets.token_hex()
@@ -54,6 +65,7 @@ def login_user():
     if not bcrypt.check_password_hash(user.password, password):
         return "Error: Password does not match!"
 
+    session['username'] = username
     return url_for('home', username=username)
 
 # handles a get request to the signup page
