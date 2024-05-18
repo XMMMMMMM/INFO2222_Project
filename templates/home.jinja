@@ -315,7 +315,7 @@
 
     // we emit a join room event to the server to join a room
     function join_room() {
-       
+
         let receiver = $("#receiver").val();
 
         // pass in the receiver of our message to the server
@@ -335,6 +335,18 @@
             // now we'll show the input box, so the user can input their message
             $("#chat_box").hide();
             $("#input_box").show();
+
+            // Fetch message history ==============================
+            fetch(`/get_messages?username=${username}`)
+            .then(response => response.json())
+            .then(data => {
+                data.messages.forEach(msg => {
+                    add_message(`${msg[0]}: ${msg[1]}`, "black");
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching messages:', error);
+            });
         });
      
     }

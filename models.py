@@ -10,9 +10,10 @@ Prisma docs also looks so much better in comparison
 or use SQLite, if you're not into fancy ORMs (but be mindful of Injection attacks :) )
 '''
 
-from sqlalchemy import String, Column, ForeignKey, Table
+from sqlalchemy import String, Column, ForeignKey, Table, Integer, DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from typing import Dict
+from datetime import datetime
 
 # data models
 class Base(DeclarativeBase):
@@ -73,6 +74,21 @@ class User(Base):
     
     def __repr__(self):
         return f"<User(username={self.username})>"
+    
+class Message(Base):
+    __tablename__ = 'messages'
+
+    id = Column(Integer, primary_key=True)
+    sender = Column(String, ForeignKey('user.username'), nullable=False)
+    receiver = Column(String, ForeignKey('user.username'), nullable=False)
+    message = Column(String, nullable=False)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
+    sender_user = relationship('User', foreign_keys=[sender])
+    receiver_user = relationship('User', foreign_keys=[receiver])
+
+    def __repr__(self):
+        return f"<Message(sender={self.sender}, receiver={self.receiver}, message={self.message}, timestamp={self.timestamp})>"
 
 # stateful counter used to generate the room id
 class Counter():
@@ -112,3 +128,8 @@ class Room():
             return None
         return self.dict[user]
     
+    def get_receiver_in_room(self, sender, room_id):
+        for user, room in self.dict.items():
+            if room == room_id and user != sender:
+                return user
+        return None

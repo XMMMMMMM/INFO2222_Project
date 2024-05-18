@@ -2,7 +2,7 @@
 db
 database file, containing all the logic to interface with the sql database
 '''
-
+from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from models import *
@@ -135,3 +135,18 @@ def check_friends(user1_username, user2_username):
         if user1 is None or user2 is None:
             return False
         return user1 in user2.friends
+    
+# 插入消息到数据库
+def insert_message(sender: str, receiver: str, message: str):
+    with Session(engine) as session:
+        new_message = Message(sender=sender, receiver=receiver, message=message)
+        session.add(new_message)
+        session.commit()
+
+# 获取某个用户的所有消息
+def get_messages(username: str):
+    with Session(engine) as session:
+        messages = session.query(Message).filter(
+            Message.receiver == username
+        ).order_by(Message.timestamp.asc()).all()
+        return [(msg.sender, msg.message, msg.timestamp) for msg in messages]

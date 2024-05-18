@@ -16,3 +16,7 @@ typing-extensions==4.5.0
 Werkzeug==2.2.3
 wsproto==1.2.0
 zipp==3.15.0
+Flask-Session
+flask_bcrypt
+bcrypt
+

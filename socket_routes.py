@@ -46,6 +46,10 @@ def disconnect():
 @socketio.on("send")
 def send(username, message, room_id):
     emit("incoming", (f"{username}: {message}"), to=room_id)
+    # 存储消息到数据库
+    receiver = room.get_receiver_in_room(username, room_id)
+    if receiver:
+        db.insert_message(username, receiver, message)
     
 # join room event handler
 # sent when the user joins a room
@@ -82,6 +86,12 @@ def join(sender_name, receiver_name):
     room_id = room.create_room(sender_name, receiver_name)
     join_room(room_id)
     emit("incoming", (f"{sender_name} has joined the room. Now talking to {receiver_name}.", "green"), to=room_id)
+    
+    # 加载消息历史记录
+    messages = db.get_messages(sender_name)
+    for msg in messages:
+        emit("incoming", (f"{msg[0]}: {msg[1]}", "black"))
+        
     return room_id
 
 # leave room event handler
