@@ -6,25 +6,114 @@
 
 {% block content %} 
    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 0;
+    }
+
     nav {
-        border-bottom: 1px solid black;
-        overflow: auto
+    border-bottom: 1px solid #ccc;
+    background-color: #fff;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+    nav ol {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+    }
+
+    nav li {
+        margin-left: 10px;
+        color: #333;
+    }
+
+    h1 {
+        color: #333;
+        text-align: center;
+        padding: 20px 0;
+        font-size: 24px;
+    }
+
+    main {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    section {
+        margin-bottom: 20px;
+    }
+
+    #add_friend input, #chat_box input, #input_box input {
+        width: calc(100% - 100px);
+        padding: 10px;
+        margin-right: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    button {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        background-color: #007BFF;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    button:hover {
+        background-color: #0056b3;
     }
 
     #message_box {
-        border: 1px solid black; 
-        height: 400px; 
-        width: 800px; 
-        overflow: auto;
-        padding: 2px;
+        border: 1px solid #ccc;
+        height: 400px;
+        width: 100%;
+        overflow-y: auto;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-radius: 4px;
     }
 
-    .text  {
-        margin-top: 2px;
-        margin-bottom: 2px;
+    .text {
+        margin: 10px 0;
+        font-weight: bold;
+    }
+
+    h2 {
+        color: #333;
+        font-size: 18px;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 5px;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    li {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+    }
+
+    li button {
+        margin-left: 10px;
     }
 
 </style>
+
 
 <!--Navbar, you'll see the username here-->
 <nav style="border-bottom: 1px solid black;">
@@ -302,7 +391,7 @@
     const socket = io();
 
     // an incoming message arrives, we'll add the message to the message box
-    socket.on("incoming", (msg, color="black") => {
+    socket.on("incoming", (msg, color="white") => {
         add_message(msg, color);
     })
     

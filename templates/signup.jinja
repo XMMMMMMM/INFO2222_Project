@@ -1,40 +1,117 @@
-<!-- 
-Sign up page, pretty much the same as login.
--->
 {% extends 'base.jinja' %}
 
+{% block content %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 0;
+    }
 
-{% block content %} 
+    nav {
+        border-bottom: 1px solid #ccc;
+        background-color: #fff;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    nav ol {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+    }
+
+    nav li {
+        margin-left: 10px;
+        color: #333;
+    }
+
+    h1 {
+        color: #333;
+        text-align: center;
+        padding: 20px 0;
+        font-size: 24px;
+    }
+
+    main {
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+    }
+
+    p {
+        margin: 10px 0 5px;
+        color: #333;
+    }
+
+    input {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    button {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        background-color: #007BFF;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+<nav>
+    <ol>
+        <li>Username: {{ username }}</li>
+    </ol>
+</nav>
+
+<main>
     <h1>Sign Up</h1>
     <p>Username</p>
-    <input id="username"/>
+    <input id="username" />
     <p>Password</p>
-    <input id="password" type="password"/>
+    <input id="password" type="password" />
     <button onclick="signup()">Sign up</button>
+</main>
 
-    <script>
-         function isValidURL(string) {
-            if (string.length == 0) {
-                return false;
-            }
-            if (string[0] == "/") {
-                return true;
-            }
+<script>
+    function isValidURL(string) {
+        if (string.length == 0) {
             return false;
         }
-
-        // this function is identical to login(), see login.jinja
-        async function signup() {
-            let loginURL = "{{ url_for('signup_user') }}";
-            let res = await axios.post(loginURL, {
-                username: $("#username").val(),
-                password: $("#password").val()
-            });
-            if (!isValidURL(res.data)) {
-                alert(res.data);
-                return;
-            }
-            window.open(res.data, "_self")
+        if (string[0] == "/") {
+            return true;
         }
-    </script>
+        return false;
+    }
+
+    async function signup() {
+        let loginURL = "{{ url_for('signup_user') }}";
+        let res = await axios.post(loginURL, {
+            username: $("#username").val(),
+            password: $("#password").val()
+        });
+        if (!isValidURL(res.data)) {
+            alert(res.data);
+            return;
+        }
+        window.open(res.data, "_self")
+    }
+</script>
 {% endblock %}
