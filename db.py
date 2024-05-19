@@ -167,3 +167,29 @@ def get_messages(username: str):
             Message.receiver == username
         ).order_by(Message.timestamp.asc()).all()
         return [(msg.sender, msg.message, msg.timestamp) for msg in messages]
+    
+# 插入新的文章到数据库
+def create_article(title: str, content: str, author: str):
+    with Session(engine) as session:
+        new_article = Article(title=title, content=content, author=author)
+        session.add(new_article)
+        session.commit()
+
+# 获取所有文章
+def get_all_articles():
+    with Session(engine) as session:
+        articles = session.query(Article).all()
+        return [{'id': article.id, 'title': article.title, 'content': article.content, 'author': article.author} for article in articles]
+
+# 插入新的评论到数据库
+def add_comment(article_id: int, content: str, author: str):
+    with Session(engine) as session:
+        new_comment = Comment(content=content, author=author, article_id=article_id)
+        session.add(new_comment)
+        session.commit()
+
+# 获取某篇文章的所有评论
+def get_comments(article_id: int):
+    with Session(engine) as session:
+        comments = session.query(Comment).filter_by(article_id=article_id).all()
+        return [{'id': comment.id, 'content': comment.content, 'author': comment.author, 'article_id': comment.article_id} for comment in comments]

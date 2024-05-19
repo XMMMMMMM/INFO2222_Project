@@ -100,29 +100,3 @@ def leave(username, room_id):
     emit("incoming", (f"{username} has left the room.", "red"), to=room_id)
     leave_room(room_id)
     room.leave_room(username)
-
-
-# def generate_dh_keys():
-#     # 生成密钥参数
-#     params = DH.generate_parameters(generator=2, key_size=2048)
-#     # 生成密钥对
-#     private_key = params.generate_private_key()
-#     public_key = private_key.public_key().export_key()
-#     return private_key, public_key
-
-# @socketio.on('join_room')
-# def handle_join_room(data):
-#     # 每个用户生成自己的DH密钥对
-#     private_key, public_key = generate_dh_keys()
-#     room = data['room']
-#     join_room(room)
-#     # 发送公钥给房间内的其他用户
-#     emit('exchange_keys', {'public_key': public_key.decode('utf-8')}, room=room)
-
-# @socketio.on('receive_key')
-# def handle_key_exchange(data):
-#     other_public_key_data = data['public_key']
-#     other_public_key = DH.import_key(other_public_key_data.encode('utf-8'))
-#     # 计算共享密钥
-#     shared_key = private_key.exchange(other_public_key)
-#     # 可以使用这个共享密钥来加密后续的通信

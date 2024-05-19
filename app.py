@@ -216,6 +216,28 @@ def chat_request():
         return jsonify({"success": True, "status": "friends"})
     else:
         return jsonify({"success": False, "error": "You are not friends with this user"})
+    
+# 处理文章的获取和创建
+@app.route('/articles', methods=['GET', 'POST'])
+def handle_articles():
+    if request.method == 'GET':
+        articles = db.get_all_articles()  # 获取所有文章的函数
+        return jsonify(success=True, articles=articles)
+    elif request.method == 'POST':
+        data = request.get_json()
+        db.create_article(data['title'], data['content'], data['author'])  # 创建文章的函数
+        return jsonify(success=True)
+
+# 处理评论的获取和创建
+@app.route('/articles/<int:article_id>/comments', methods=['GET', 'POST'])
+def handle_comments(article_id):
+    if request.method == 'GET':
+        comments = db.get_comments(article_id)  # 获取评论的函数
+        return jsonify(success=True, comments=comments)
+    elif request.method == 'POST':
+        data = request.get_json()
+        db.add_comment(article_id, data['content'], data['author'])  # 添加评论的函数
+        return jsonify(success=True)
 
 if __name__ == '__main__':
     socketio.run(app, ssl_context=('./certs/localhost.crt', './certs/localhost.key'))

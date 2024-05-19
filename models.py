@@ -10,7 +10,7 @@ Prisma docs also looks so much better in comparison
 or use SQLite, if you're not into fancy ORMs (but be mindful of Injection attacks :) )
 '''
 
-from sqlalchemy import String, Column, ForeignKey, Table, Integer, DateTime
+from sqlalchemy import String, Column, ForeignKey, Table, Integer, DateTime, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from typing import Dict
 from datetime import datetime
@@ -133,3 +133,18 @@ class Room():
             if room == room_id and user != sender:
                 return user
         return None
+class Article(Base):
+    __tablename__ = 'articles'
+    id = Column(Integer, primary_key=True)
+    title = Column(String(100), nullable=False)
+    content = Column(Text, nullable=False)
+    author = Column(String(50), nullable=False)
+    comments = relationship("Comment", back_populates="article")
+
+class Comment(Base):
+    __tablename__ = 'comments'
+    id = Column(Integer, primary_key=True)
+    content = Column(Text, nullable=False)
+    author = Column(String(50), nullable=False)
+    article_id = Column(Integer, ForeignKey('articles.id'))
+    article = relationship("Article", back_populates="comments")

@@ -167,11 +167,37 @@
         <button onclick="removeFriend()">Remove Friend</button>
     </section>
 
+    <!-- Articles Section -->
+    <section id="articles_section">
+        <h2>Articles</h2>
+        <ul id="articles_list"></ul>
+        <button onclick="showArticleForm()">Add Article</button>
+    </section>
+
+    <!-- Article Form Section (hidden by default) -->
+    <section id="article_form_section" style="display: none;">
+        <h2 id="article_form_title">New Article</h2>
+        <input id="article_title_input" placeholder="Title">
+        <textarea id="article_content_input" placeholder="Content"></textarea>
+        <button onclick="submitArticle()">Submit</button>
+        <button onclick="cancelArticleForm()">Cancel</button>
+    </section>
+
+    <!-- Comments Section (hidden by default) -->
+    <section id="comments_section" style="display: none;">
+        <h2>Comments</h2>
+        <ul id="comments_list"></ul>
+        <input id="comment_input" placeholder="Add a comment">
+        <button onclick="submitComment()">Submit</button>
+        <button onclick="hideComments()">Close</button>
+    </section>
+    
 </main>
 
 <script src="/static/js/libs/socket.io.min.js"></script>
 <script>
     let room_id = 0;
+    let currentArticleId = null;  // 保存当前文章的 ID
 
     function fetchPendingRequests() {
         fetch(`/pending_requests?username=${username}`, {
@@ -243,10 +269,11 @@
         });
     }
 
-    // Fetch data when the page loads
+    // Fetch data when the page loads 
     window.onload = function() {
         fetchPendingRequests();
         fetchConfirmedFriends();
+        fetchArticles();
     };
 
     function acceptFriendRequest(fromUsername) {
@@ -263,8 +290,8 @@
                 alert("Friend request accepted successfully!");
                 fetchPendingRequests(); // Refresh pending requests
                 fetchConfirmedFriends(); // Refresh confirmed friends list
-                } else {
-                    alert("Failed to accept friend request: " + data.error);
+            } else {
+                alert("Failed to accept friend request: " + data.error);
             }
         })
         .catch(error => {
@@ -484,6 +511,142 @@
         let child = $(`<p style="color:${color}; margin: 0px;"></p>`).text(message);
         box.append(child);
     }
-    
+
+    // Function to fetch and display articles
+    function fetchArticles() {
+        fetch('/articles', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayArticles(data.articles);
+            } else {
+                console.error('Failed to fetch articles:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching articles:', error);
+        });
+    }
+
+    // Function to display articles
+    function displayArticles(articles) {
+        const articlesListElement = document.getElementById('articles_list');
+        articlesListElement.innerHTML = '';
+
+        articles.forEach(article => {
+            const listItem = document.createElement('li');
+            listItem.textContent = article.title;
+            listItem.onclick = () => showComments(article.id);
+            articlesListElement.appendChild(listItem);
+        });
+    }
+
+    // Function to show the article form
+    function showArticleForm() {
+        document.getElementById('article_form_section').style.display = 'block';
+    }
+
+    // Function to hide the article form
+    function cancelArticleForm() {
+        document.getElementById('article_form_section').style.display = 'none';
+    }
+
+    // Function to submit a new article
+    function submitArticle() {
+        const title = document.getElementById('article_title_input').value;
+        const content = document.getElementById('article_content_input').value;
+
+        fetch('/articles', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ title, content, author: username }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                fetchArticles();
+                cancelArticleForm();
+            } else {
+                console.error('Failed to submit article:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error submitting article:', error);
+        });
+    }
+
+    // Function to show comments for an article
+    function showComments(articleId) {
+        currentArticleId = articleId;  // 设置当前文章的 ID
+        fetch(`/articles/${articleId}/comments`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayComments(data.comments);
+                document.getElementById('comments_section').style.display = 'block';
+            } else {
+                console.error('Failed to fetch comments:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching comments:', error);
+        });
+    }
+
+    // Function to display comments
+    function displayComments(comments) {
+        const commentsListElement = document.getElementById('comments_list');
+        commentsListElement.innerHTML = '';
+
+        comments.forEach(comment => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${comment.author}: ${comment.content}`;
+            commentsListElement.appendChild(listItem);
+        });
+    }
+
+    // Function to hide comments section
+    function hideComments() {
+        document.getElementById('comments_section').style.display = 'none';
+    }
+
+    // Function to submit a new comment
+    function submitComment() {
+        const content = document.getElementById('comment_input').value;
+        const articleId = currentArticleId;  // 使用当前文章的 ID
+
+        fetch(`/articles/${articleId}/comments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ content, author: username }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showComments(articleId);
+                document.getElementById('comment_input').value = '';
+            } else {
+                console.error('Failed to submit comment:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error submitting comment:', error);
+        });
+    }
+
 </script>
 {% endblock %}
