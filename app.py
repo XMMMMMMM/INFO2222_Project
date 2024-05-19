@@ -179,6 +179,25 @@ def confirmed_friends():
     else:
         return jsonify({"success": False, "error": "Failed to fetch confirmed friends"})
 
+@app.route('/remove_friend', methods=['POST'])
+def remove_friend():
+    data = request.json
+    if not data:
+        abort(400, description="No data provided")
+
+    username = data.get("username")
+    friend_username = data.get("friendUsername")
+
+    if not username or not friend_username:
+        abort(400, description="Missing username or friend username")
+
+    # Remove friend from the friend list in the database
+    success = db.remove_friend(username, friend_username)
+    if success:
+        return jsonify({"success": True})
+    else:
+        return jsonify({"success": False, "error": "Failed to remove friend"})
+
 @app.route('/chat_request', methods=['POST'])
 def chat_request():
     # Get data from request

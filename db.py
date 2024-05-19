@@ -128,6 +128,23 @@ def get_confirmed_friends(username: str):
             return [(user.username, friend.username) for friend in user.friends]
         return []
 
+def remove_friend(username: str, friend_username: str):
+    with Session(engine) as session:
+        user = session.query(User).filter_by(username=username).first()
+        friend = session.query(User).filter_by(username=friend_username).first()
+            
+        if not user or not friend:
+            return False, "User does not exist"
+     
+        if friend not in user.friends:
+            return False, "User is not in the friend list"
+            
+        # Remove friend relationship
+        user.friends.remove(friend)
+        friend.friends.remove(user)
+        session.commit()
+        return True, None
+
 def check_friends(user1_username, user2_username):
     with Session(engine) as session:
         user1 = session.query(User).filter_by(username=user1_username).first()
