@@ -3,9 +3,8 @@
 -->
 {% extends 'base.jinja' %}
 
-
 {% block content %} 
-   <style>
+<style>
     body {
         font-family: Arial, sans-serif;
         background-color: #f4f4f9;
@@ -14,13 +13,13 @@
     }
 
     nav {
-    border-bottom: 1px solid #ccc;
-    background-color: #fff;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-}
+        border-bottom: 1px solid #ccc;
+        background-color: #fff;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
 
     nav ol {
         list-style: none;
@@ -114,7 +113,6 @@
 
 </style>
 
-
 <!--Navbar, you'll see the username here-->
 <nav style="border-bottom: 1px solid black;">
     <ol style="float: right">
@@ -128,8 +126,8 @@
 
     <!-- Add Friend -->
     <section id="add_friend">
-    <input id="add_friend_input" placeholder="Add friend by username">
-    <button onclick="addFriend()">Add Friend</button>
+        <input id="add_friend_input" placeholder="Add friend by username">
+        <button onclick="addFriend()">Add Friend</button>
     </section>
 
     <!-- Section to display pending friend requests -->
@@ -153,7 +151,7 @@
 
     <!-- The (message) input box is set to display: none initially, 
     this means the input box is "invisible" initially-->
-    <section id="input_box" style="display: none" >
+    <section id="input_box" style="display: none">
         <p class="text">Message: </p>
         <input id="message" placeholder="message">
         <button onclick="send()">Send</button>
@@ -183,6 +181,13 @@
         <button onclick="cancelArticleForm()">Cancel</button>
     </section>
 
+    <!-- Article Details Section (hidden by default) -->
+    <section id="article_details_section" style="display: none;">
+        <h2 id="article_details_title">Article Details</h2>
+        <p id="article_details_content"></p>
+        <button onclick="hideArticleDetails()">Close</button>
+    </section>
+
     <!-- Comments Section (hidden by default) -->
     <section id="comments_section" style="display: none;">
         <h2>Comments</h2>
@@ -191,7 +196,7 @@
         <button onclick="submitComment()">Submit</button>
         <button onclick="hideComments()">Close</button>
     </section>
-    
+
 </main>
 
 <script src="/static/js/libs/socket.io.min.js"></script>
@@ -421,7 +426,6 @@
         }
     })
 
-
     $(document).ready(() => {
         // room_id is undefined if the user hasn't joined a room
         // we early return in this case
@@ -435,7 +439,7 @@
         $("#input_box").show();
         room_id = parseInt(Cookies.get("room_id"));
     })
-    
+
     // Here's the Socket IO part of the code
     // things get a bit complicated here so brace yourselves :P
     let username = "{{ username }}";
@@ -459,7 +463,6 @@
 
     // we emit a join room event to the server to join a room
     function join_room() {
-
         let receiver = $("#receiver").val();
 
         // pass in the receiver of our message to the server
@@ -492,7 +495,6 @@
                 console.error('Error fetching messages:', error);
             });
         });
-     
     }
 
     // function when the user clicks on "Leave Room"
@@ -541,45 +543,25 @@
         articles.forEach(article => {
             const listItem = document.createElement('li');
             listItem.textContent = article.title;
-            listItem.onclick = () => showComments(article.id);
+            listItem.onclick = () => showArticleDetails(article);
             articlesListElement.appendChild(listItem);
         });
     }
 
-    // Function to show the article form
-    function showArticleForm() {
-        document.getElementById('article_form_section').style.display = 'block';
+    // Function to show article details
+    function showArticleDetails(article) {
+        document.getElementById('article_details_title').textContent = article.title;
+        document.getElementById('article_details_content').textContent = article.content;
+        document.getElementById('article_details_section').style.display = 'block';
+        document.getElementById('comments_section').style.display = 'block';  // 显示评论部分
+        currentArticleId = article.id;  // 设置当前文章的 ID
+        showComments(article.id);  // 获取并显示评论
     }
 
-    // Function to hide the article form
-    function cancelArticleForm() {
-        document.getElementById('article_form_section').style.display = 'none';
-    }
-
-    // Function to submit a new article
-    function submitArticle() {
-        const title = document.getElementById('article_title_input').value;
-        const content = document.getElementById('article_content_input').value;
-
-        fetch('/articles', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ title, content, author: username }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                fetchArticles();
-                cancelArticleForm();
-            } else {
-                console.error('Failed to submit article:', data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error submitting article:', error);
-        });
+    // Function to hide article details
+    function hideArticleDetails() {
+        document.getElementById('article_details_section').style.display = 'none';
+        document.getElementById('comments_section').style.display = 'none';  // 隐藏评论部分
     }
 
     // Function to show comments for an article
