@@ -164,6 +164,7 @@
     <section id="friends_section">
         <h2>Friends List</h2>
         <ul id="friends_list"></ul>
+        <button onclick="removeFriend()">Remove Friend</button>
     </section>
 
 </main>
@@ -323,6 +324,33 @@
         })
         .catch(error => {
             console.error('Error sending friend request:', error);
+        });
+    }
+
+    function removeFriend() {
+        const friendUsername = prompt("Enter the username of the friend you want to remove:");
+        if (!friendUsername) {
+            alert("Please enter a username to remove as a friend.");
+            return;
+        }
+        fetch(`/remove_friend`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username: "{{ username }}", friendUsername: friendUsername }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Friend removed successfully!");
+                fetchConfirmedFriendList();
+            } else {
+                alert("Failed to remove friend: " + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error removing friend:', error);
         });
     }
     
